@@ -1,5 +1,7 @@
 # Remote Sensing Imagery Semantic Segmentation
 
+# 暂时迁移至[Gitee](https://gitee.com/unqua/rsi-semantic-segmentation-gitee)(~~因为实验室服务器没VPN~~
+
 Read this in other languages: English | [简体中文](README_zh-CN.md)
 
 ## Table of Contents
