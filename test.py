@@ -43,11 +43,12 @@ def main():
 
     # build dataset
     test_dataset = build_dataset('test')
+    NUM_CHANNELS = test_dataset.num_channels
     NUM_CLASSES = test_dataset.num_classes
     # build data loader
     test_dataloader = build_dataloader(test_dataset, 'test')
     # build model
-    model = build_model(NUM_CLASSES)
+    model = build_model(NUM_CHANNELS, NUM_CLASSES)
     model.to(args.device)
     # build metric
     metric = Metric(NUM_CLASSES)
@@ -65,20 +66,21 @@ def main():
     metric.reset()  # reset metric
     test_bar = tqdm(test_dataloader, desc='testing', ascii=True)
     with torch.no_grad():  # disable gradient back-propagation
-        for batch, (x, label) in enumerate(test_bar):
+        for x, label in test_bar:
             x, label = x.to(args.device), label.to(args.device)
             y = model(x)
 
-            if NUM_CLASSES > 2:
-                pred = y.data.cpu().numpy().argmax(axis=1)
-            else:
-                pred = (y.data.cpu().numpy() > 0.5).squeeze(1)
-            label = label.data.cpu().numpy()
-            metric.add(pred, label)
-    pa, pas, mpa, ious, miou = metric.PA(), metric.PAs(), metric.mPA(), metric.IoUs(), metric.mIoU()
-    logging.info('test | PA={:.4f} mPA={:.4f} mIoU={:.4f}'.format(pa, mpa, miou))
-    for c in range(NUM_CLASSES):
-        logging.info('test | class=#{} PA={:.4f} IoU={:.4f}'.format(c, pas[c], ious[c]))
+            pred = y.argmax(axis=1)
+            metric.add(pred.data.cpu().numpy(), label.data.cpu().numpy())
+
+            test_bar.set_postfix({
+                'PA': f'{metric.PA():.4f}',
+                'mPA': f'{metric.mPA():.4f}',
+                'mIoU': f'{metric.mIoU():.4f}',
+                'P': ','.join([f'{p:.4f}' for p in metric.Ps()]),
+                'R': ','.join([f'{r:.4f}' for r in metric.Rs()]),
+                'IoU': ','.join([f'{iou:.4f}' for iou in metric.IoUs()]),
+            })
 
 
 if __name__ == '__main__':

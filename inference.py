@@ -48,12 +48,13 @@ def main():
     CFG.merge_from_file(args.config)
 
     # build transform
-    transform = build_transform()
+    transform = build_transform('test')
     # build dataset
     test_dataset = build_dataset('test')
+    NUM_CHANNELS = test_dataset.num_channels
     NUM_CLASSES = test_dataset.num_classes
     # build model
-    model = build_model(NUM_CLASSES)
+    model = build_model(NUM_CHANNELS, NUM_CLASSES)
     model.to(args.device)
 
     # load checkpoint
@@ -68,16 +69,14 @@ def main():
     model.eval()  # set model to evaluation mode
 
     x = io.imread(args.input)  # read image
-    x, _ = transform(x, None)  # preprocess image
+    x = transform(image=x)['image']  # preprocess image
     x = x.unsqueeze(0)  # sample to batch
     x = x.to(args.device)
 
     y = model(x)
 
-    if NUM_CLASSES > 2:
-        pred = y.data.cpu().numpy().argmax(axis=1)
-    else:
-        pred = (y.data.cpu().numpy() > 0.5).squeeze(1)
+    pred = y.argmax(axis=1)
+    pred = pred.data.cpu().numpy()
     pred = pred.squeeze(axis=0)
     pred = pred.astype(np.uint8)
     for label in test_dataset.labels:

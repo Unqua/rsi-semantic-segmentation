@@ -9,21 +9,18 @@ DATASET:
         - 0.2213
         - 0.2144
         - 0.2216
-    PATCH:
-        HEIGHT: 256
-        WIDTH: 256
-        STRIDE_Y: 64
-        STRIDE_X: 64
 
 DATALOADER:
     BATCH_SIZE: 8
     NUM_WORKERS: 8
 
 MODEL:
-    NAME: 'deeplabv3+resnet50'
+    NAME: 'deeplabv3'
+    BACKBONE:
+        NAME: 'resnet50'
 
 CRITERION:
-    NAME: 'sigmoid+dice'
+    NAME: 'dice'
 
 OPTIMIZER:
     NAME: 'adam'

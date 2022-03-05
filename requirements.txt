@@ -1,6 +1,8 @@
+albumentations
 numpy
 pandas
 scikit-image
+segmentation-models-pytorch
 tensorboardX
 timm
 torch
